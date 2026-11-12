@@ -60,16 +60,25 @@ start point, 1 mark for the can being released horizontally.
 
 ---
 
-## How you do it is up to you
+## Lining up with the detection box
 
-The only fixed points are the ones in the table. Between pressing Grab and
-holding the can, the design is yours. For example:
+After Grab is pressed, the robot lines *itself* up with the can using the
+model's detection box, then grabs. The driver's job ends once the can is in
+frame. From there the robot turns until the can is where it needs to be,
+creeps forward until it's in reach, and then runs the arm sequence.
 
-- The driver lines the can up by eye against a marker drawn on the camera
-  feed, then a fixed sequence of arm poses does the rest.
-- The robot uses the detection box to line *itself* up (turning, creeping
-  forward) and then grabs.
-- Something in between, or something better.
+How you turn the box into movement is up to you. Questions to answer:
+
+- **Where is "lined up"?** Which spot in the frame puts the can in front of
+  the gripper? It may not be the centre of the image if the camera is mounted
+  off to one side or tilted.
+- **How do you know it's in reach?** The box gets bigger and lower in the
+  frame as the robot gets closer. Which of those do you trust, and at what
+  value do you stop?
+- **How close is close enough?** Without some tolerance, the robot overshoots
+  and hunts back and forth forever.
+- **What if the box disappears?** The can can drop out of frame or the model
+  can miss it for a few frames. Stop, wait, give up?
 
 A simple approach that works nine times out of ten beats a clever one that
 works twice. Reliability is in the rubric.
@@ -115,8 +124,9 @@ begins by going to a known "home" pose behaves the same no matter where the
 arm was left.
 
 **Repeatability.** A scripted grab only works if the can is in the same place
-relative to the robot every time. What tells the driver, or the robot, that
-it is? How much error can your grab tolerate?
+relative to the robot every time. That's the alignment's job. How much error
+can your grab tolerate, and are your thresholds tight enough to stay inside
+it?
 
 **Grip.** How far must the gripper close to hold a can without crushing it,
 and without the servo straining? A servo that is pushing against something it
@@ -139,9 +149,10 @@ the arm, and what state is it left in?
 that freezes the window, the camera and the Stop button for the whole grab.
 Your GUI builder and you need to solve this together.
 
-**The picture is late.** If your grab uses the camera, remember that the image
-reaches the lab PC a fraction of a second after it was taken, sometimes more.
-A routine that steers while it watches is steering by the past.
+**The picture is late.** The image reaches the lab PC a fraction of a second
+after it was taken, sometimes more. An alignment that steers while it watches
+is steering by the past. Small moves, then a pause to look again, are slower
+but much easier to get right.
 
 ---
 
@@ -151,9 +162,9 @@ A routine that steers while it watches is steering by the past.
   that interface in the first session, then give your GUI builder a stand-in
   version on day one (one that just prints "grabbing…" and waits three
   seconds is enough) so neither of you is waiting for the other.
-- The **model** tells you whether, and where, a can is in view. If your grab
-  uses the box position, ask your vision trainer what a detection looks like
-  in code.
+- The **model** tells you whether, and where, a can is in view. Your
+  alignment runs on the box position, so ask your vision trainer early what a
+  detection looks like in code, and how steady the box is from frame to frame.
 
 See `docs/putting_it_together.md`.
 
